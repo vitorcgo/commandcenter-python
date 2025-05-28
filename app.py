@@ -22,22 +22,30 @@ if uploaded_file:
     else:
         df = pd.read_excel(uploaded_file, sheet_name="Report", header=None)
 
-    # Força leitura correta das colunas: A (0), D (3), N (13)
+    # Seleciona colunas específicas: A (0), D (3), N (13)
     df = df.iloc[:, [0, 3, 13]]
     df.columns = ["Especialidade", "Convenio", "Data"]
 
-    # Remove linhas em branco
-    df = df.dropna(subset=["Especialidade", "Convenio", "Data"])
+    # Limpa campos de texto
+    df["Especialidade"] = df["Especialidade"].astype(str).str.strip()
+    df["Convenio"] = df["Convenio"].astype(str).str.strip()
+
+    # Remove linhas com campos em branco ou com "NaN" disfarçado
+    df = df[
+        (df["Especialidade"].str.upper() != "NAN") & (df["Especialidade"] != "") &
+        (df["Convenio"].str.upper() != "NAN") & (df["Convenio"] != "")
+    ]
+
+    # Converte datas e remove inválidas
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.date
+    df = df.dropna(subset=["Data"])
 
     # Filtros das especialidades desejadas
     especialidades_desejadas = ["CLI", "PED", "ORT"]
     df = df[df["Especialidade"].isin(especialidades_desejadas)]
 
-    # Classificação de tipo de convênio
+    # Classificação do tipo de convênio
     df["TipoConvenio"] = df["Convenio"].apply(lambda x: "GRUPO" if "AMIL" in str(x).upper() else "EXTRA GRUPO")
-
-    # Padronização da data
-    df["Data"] = pd.to_datetime(df["Data"]).dt.date
 
     # Agrupamento
     resumo = df.groupby(["Especialidade", "TipoConvenio", "Data"]).size().reset_index(name="Total")
@@ -50,7 +58,7 @@ if uploaded_file:
         fill_value=0
     )
 
-    st.subheader("Visualização dos Dados Formatados")
+    st.subheader("📊 Visualização dos Dados Formatados")
     st.dataframe(tabela_formatada)
 
     # Geração do arquivo para download
@@ -65,20 +73,18 @@ if uploaded_file:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    # TOTAL DE PACIENTES POR DIA
+    # Total de pacientes por dia
     total_por_dia = df.groupby("Data").size().reset_index(name="TotalPacientes")
 
-    # Dia com mais e menos atendimentos
-    dia_mais = total_por_dia.sort_values("TotalPacientes", ascending=False).iloc[0]
-    dia_menos = total_por_dia.sort_values("TotalPacientes", ascending=True).iloc[0]
+    # Maior e menor volume
+    if not total_por_dia.empty:
+        dia_mais = total_por_dia.sort_values("TotalPacientes", ascending=False).iloc[0]
+        dia_menos = total_por_dia.sort_values("TotalPacientes", ascending=True).iloc[0]
 
-    # Mostrar os resultados
-    st.markdown("### 📊 Análise de Atendimentos")
-    st.markdown(f"🔝 **Maior movimento:** {dia_mais['Data'].strftime('%d/%m/%Y')} com **{dia_mais['TotalPacientes']} pacientes**")
-    st.markdown(f"🔻 **Menor movimento:** {dia_menos['Data'].strftime('%d/%m/%Y')} com **{dia_menos['TotalPacientes']} pacientes**")
+        st.markdown("### 🔍 Análise de Atendimentos")
+        st.markdown(f"📈 **Maior movimento:** {dia_mais['Data'].strftime('%d/%m/%Y')} com **{dia_mais['TotalPacientes']} pacientes**")
+        st.markdown(f"📉 **Menor movimento:** {dia_menos['Data'].strftime('%d/%m/%Y')} com **{dia_menos['TotalPacientes']} pacientes**")
 
-
-
-# Rodapé com crédito
+# Rodapé
 st.markdown("---")
 st.markdown("**Criado por Vitor Cavalcante Gomes - vitor.cavalcante@amil.com.br - www.vitorgomes.tech**")
