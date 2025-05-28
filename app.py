@@ -29,6 +29,8 @@ if uploaded_file:
     # Remove linhas em branco
     df = df.dropna(subset=["Especialidade", "Convenio", "Data"])
 
+    df["Data"] = pd.to_datetime(df["Data"], dayfirst=True, errors="coerce").dt.date
+
     # Filtros das especialidades desejadas
     especialidades_desejadas = ["CLI", "PED", "ORT"]
     df = df[df["Especialidade"].isin(especialidades_desejadas)]
@@ -76,8 +78,6 @@ if uploaded_file:
     st.markdown("### 📊 Análise de Atendimentos")
     st.markdown(f"🔝 **Maior movimento:** {dia_mais['Data'].strftime('%d/%m/%Y')} com **{dia_mais['TotalPacientes']} pacientes**")
     st.markdown(f"🔻 **Menor movimento:** {dia_menos['Data'].strftime('%d/%m/%Y')} com **{dia_menos['TotalPacientes']} pacientes**")
-
-    df["Data"] = pd.to_datetime(df["Data"], dayfirst=True, errors="coerce").dt.date
 
 
 
