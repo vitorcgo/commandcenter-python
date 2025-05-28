@@ -77,6 +77,9 @@ if uploaded_file:
     st.markdown(f"🔝 **Maior movimento:** {dia_mais['Data'].strftime('%d/%m/%Y')} com **{dia_mais['TotalPacientes']} pacientes**")
     st.markdown(f"🔻 **Menor movimento:** {dia_menos['Data'].strftime('%d/%m/%Y')} com **{dia_menos['TotalPacientes']} pacientes**")
 
+    df["Data"] = pd.to_datetime(df["Data"], dayfirst=True, errors="coerce").dt.date
+
+
 
 # Rodapé com crédito
 st.markdown("---")
