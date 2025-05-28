@@ -80,4 +80,4 @@ if uploaded_file:
 
 # Rodapé com crédito
 st.markdown("---")
-st.markdown("**Criado por Vitor Cavalcante Gomes - vitor.cavalcante@amil.com.br**")
+st.markdown("**Criado por Vitor Cavalcante Gomes - vitor.cavalcante@amil.com.br - www.vitorgomes.tech**")
