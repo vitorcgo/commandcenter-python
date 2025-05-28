@@ -7,10 +7,21 @@ st.title("Separar Atendimentos por Especialidade e Convênio")
 
 st.markdown("_Envie sua planilha de atendimentos para organizar automaticamente por especialidade, tipo de convênio e data._")
 
-uploaded_file = st.file_uploader("Escolha a planilha de atendimentos (.xlsx)", type="xlsx")
+uploaded_file = st.file_uploader("Escolha a planilha de atendimentos (.xls ou .xlsx)", type=["xls", "xlsx"])
 
 if uploaded_file:
-    df = pd.read_excel(uploaded_file, sheet_name="Report")
+    # Verifica e converte .xls para .xlsx, se necessário
+    file_name = uploaded_file.name
+    if file_name.endswith(".xls"):
+        df_temp = pd.read_excel(uploaded_file, sheet_name="Report", engine="xlrd")
+        buffer_xlsx = BytesIO()
+        with pd.ExcelWriter(buffer_xlsx, engine="openpyxl") as writer:
+            df_temp.to_excel(writer, sheet_name="Report", index=False)
+        buffer_xlsx.seek(0)
+        df = pd.read_excel(buffer_xlsx, sheet_name="Report")
+    else:
+        df = pd.read_excel(uploaded_file, sheet_name="Report")
+
     df.columns = [str(col).strip().lower() for col in df.columns]
 
     # Tentar detectar automaticamente
