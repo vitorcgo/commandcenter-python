@@ -65,6 +65,19 @@ if uploaded_file:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
+    # TOTAL DE PACIENTES POR DIA
+    total_por_dia = df.groupby("Data").size().reset_index(name="TotalPacientes")
+
+    # Dia com mais e menos atendimentos
+    dia_mais = total_por_dia.sort_values("TotalPacientes", ascending=False).iloc[0]
+    dia_menos = total_por_dia.sort_values("TotalPacientes", ascending=True).iloc[0]
+
+    # Mostrar os resultados
+    st.markdown("### 📊 Análise de Atendimentos")
+    st.markdown(f"🔝 **Maior movimento:** {dia_mais['Data'].strftime('%d/%m/%Y')} com **{dia_mais['TotalPacientes']} pacientes**")
+    st.markdown(f"🔻 **Menor movimento:** {dia_menos['Data'].strftime('%d/%m/%Y')} com **{dia_menos['TotalPacientes']} pacientes**")
+
+
 # Rodapé com crédito
 st.markdown("---")
 st.markdown("**Criado por Vitor Cavalcante Gomes**")
