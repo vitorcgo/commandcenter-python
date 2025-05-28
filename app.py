@@ -29,8 +29,6 @@ if uploaded_file:
     # Remove linhas em branco
     df = df.dropna(subset=["Especialidade", "Convenio", "Data"])
 
-    df["Data"] = pd.to_datetime(df["Data"], dayfirst=True, errors="coerce").dt.date
-
     # Filtros das especialidades desejadas
     especialidades_desejadas = ["CLI", "PED", "ORT"]
     df = df[df["Especialidade"].isin(especialidades_desejadas)]
